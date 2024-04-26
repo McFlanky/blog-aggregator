@@ -21,7 +21,18 @@ My goal in this project is to show that I can not only create cohesive and compr
  - Users to be able to scrape RSS feeds
  - Users to be able to store those scraped RSS feeds in a database
  - Users can specify which feeds they want to follow/unfollow
- - Users can fetch all latest posts from the RSS feeds they follow
+ - Users can fetch all latest posts from the RSS feeds they follow or not follow (auth for follow, no auth for all feeds)
+
+### High Level Design
+1. Basic CRUD server using Chi with JSON helper functions for HTTP responses + handlers for endpoints
+2. Create PostgreSQL server coupled with sqlc and goose for migrating changes up and down and creating go code from queries to automate some schemas
+3. Use apikeys for users to more encryption in the database
+4. Use Feeds table/query for creating feeds coupled with authentication middleware with custom handlers
+5. Then another endpoint to get all feeds with no auth
+6. Then allow users to follow feeds in a many to many relationship with each user/feed pair to have its own "unique" ID seperate from feed ID and user ID
+7. We use a scraper worker now to scrape the XML from the web constantly utilizing go's concurrency (go) on a scrapeFeed function to constantly scrape every set interval, with an infinite for loop that waits for ticks from a ticker(its a lot more in depth and I can go deeper)
+8. We also keep track off when the last feeds were fetched, and multiple querys(1 to return feeds that need fetched, 2 to update a feed as fetched) coupled with a function to fetch data from the feed
+9. Now we can have users create posts and get posts by user and save posts to database from scraping RSS feeds online and adding them to DB!
 
 ### Detailed Design/Breakdown
 1) Create a basic CRUD server with Chi routing/CORS middleware function and add http.Server/port and add multiplexer to it.
